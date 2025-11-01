@@ -6,6 +6,7 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import joblib
+import sklearn   
 
 st.sidebar.title("⚙️ Environment Info")
 st.sidebar.write(f"**scikit-learn version:** {sklearn.__version__}")
