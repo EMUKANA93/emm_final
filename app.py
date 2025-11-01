@@ -1,106 +1,112 @@
+# employee_performance_app.py
+# =============================================
+# Streamlit App for Employee Performance Prediction
+# =============================================
+
 import streamlit as st
-import joblib
 import pandas as pd
+import joblib
 import numpy as np
-import warnings
 
-warnings.filterwarnings('ignore') # Suppress warnings
+# =============================================
+# Page Configuration
+# =============================================
+st.set_page_config(
+    page_title="Employee Performance Predictor",
+    page_icon="💼",
+    layout="wide"
+)
 
-# --- 1. Load the Model ---
-# The pipeline includes all preprocessing steps (imputer, scaler, encoder)
-# and the Gradient Boosting Classifier.
-try:
-    model_path = 'best_employee_performance_model.joblib'
-    model = joblib.load(model_path)
-except Exception as e:
-    st.error(f"Error loading model: {e}")
-    st.stop()
-
-
-# --- 2. Define Features and App Layout ---
-st.set_page_config(page_title="Employee Performance Predictor")
-st.title("👨‍💼 INX Employee Performance Predictor")
-st.markdown("Use this app to predict an employee's Performance Rating (3 or 4) based on their features.")
-
-# Define the features to collect for the model
-# NOTE: The categorical list should ideally contain all categories for robust OHE
-# but this simplified list is based on the notebook's preprocessing pipeline.
-# You would need to check the full list of categories used in the training data.
-
-# Features used by the model pipeline (based on the notebook structure)
-NUMERIC_COLS = ['Age', 'DistanceFromHome', 'EmpEducationLevel', 'EmpEnvironmentSatisfaction', 
-                'EmpHourlyRate', 'EmpJobInvolvement', 'EmpJobLevel', 'EmpJobSatisfaction', 
-                'NumCompaniesWorked', 'EmpLastSalaryHikePercent', 'EmpRelationshipSatisfaction', 
-                'TotalWorkExperienceInYears', 'TrainingTimesLastYear', 'EmpWorkLifeBalance', 
-                'ExperienceYearsAtThisCompany', 'ExperienceYearsInCurrentRole', 
-                'YearsSinceLastPromotion', 'YearsWithCurrManager']
-                
-CATEGORICAL_COLS = ['Gender', 'EducationBackground', 'MaritalStatus', 'EmpDepartment', 
-                    'EmpJobRole', 'BusinessTravelFrequency', 'OverTime', 'Attrition']
-
-# Pre-defined options for categorical inputs
-CAT_OPTIONS = {
-    'Gender': ['Male', 'Female'],
-    'EducationBackground': ['Life Sciences', 'Medical', 'Marketing', 'Technical Degree', 'Human Resources', 'Other'],
-    'MaritalStatus': ['Single', 'Married', 'Divorced'],
-    'EmpDepartment': ['Sales', 'Development', 'Research & Development', 'Human Resources', 'Finance', 'Data Science'],
-    'EmpJobRole': ['Sales Executive', 'Research Scientist', 'Laboratory Technician', 'Manufacturing Director', 'Healthcare Representative', 
-                   'Manager', 'Sales Representative', 'Research Director', 'Human Resources', 'Finance Manager', 'Data Scientist'],
-    'BusinessTravelFrequency': ['Travel_Rarely', 'Travel_Frequently', 'Non-Travel'],
-    'OverTime': ['Yes', 'No'],
-    'Attrition': ['Yes', 'No']
-}
-
-# --- 3. Collect User Input ---
-st.sidebar.header("Employee Input Features")
-
-def get_user_input():
-    # Collect Numeric Inputs in Sidebar
-    input_data = {}
-    
-    st.sidebar.subheader("Numeric Features")
-    for col in NUMERIC_COLS:
-        # Use a reasonable default value, min, and max based on typical HR data
-        if col in ['Age', 'EmpHourlyRate']:
-            default_val = 35
-            min_val = 18
-            max_val = 60
-        else:
-            default_val = 1
-            min_val = 1
-            max_val = 30 # For experience/levels
-            
-        input_data[col] = st.sidebar.number_input(col, min_value=min_val, max_value=max_val, value=default_val, step=1)
-    
-    st.sidebar.subheader("Categorical Features")
-    # Collect Categorical Inputs in Sidebar
-    for col in CATEGORICAL_COLS:
-        input_data[col] = st.sidebar.selectbox(col, options=CAT_OPTIONS.get(col, []))
-
-    # Convert the dictionary to a DataFrame (must be a single row)
-    features = pd.DataFrame([input_data])
-    return features
-
-input_df = get_user_input()
-
-st.subheader("Current Employee Data Input:")
-st.dataframe(input_df)
-
-# --- 4. Prediction Logic ---
-if st.button("Predict Performance Rating"):
+# =============================================
+# Load Model with Caching
+# =============================================
+@st.cache_resource
+def load_model():
     try:
-        # The model pipeline expects a DataFrame with the original columns
-        prediction = model.predict(input_df)
-        
-        # The prediction output is either 3 or 4
-        result = int(prediction[0])
-        
-        # Display results
-        if result == 4:
-            st.success(f"**Predicted Performance Rating: {result} (High)**")
-            st.balloons()
-        else:
-            st.info(f"**Predicted Performance Rating: {result} (Average)**")
-
+        model = joblib.load("best_employee_performance_model.joblib")
+        return model
     except Exception as e:
-        st.error(f"An error occurred during prediction: {e}")
+        st.error(f"Error loading model: {e}")
+        return None
+
+
+model = load_model()
+
+# =============================================
+# Sidebar - App Navigation
+# =============================================
+st.sidebar.title("⚙️ Settings")
+st.sidebar.markdown("Adjust input values and predict performance.")
+
+# =============================================
+# Main Title
+# =============================================
+st.title("💼 Employee Performance Prediction Dashboard")
+st.markdown("Use this interactive tool to predict an employee’s performance rating based on workplace and personal factors.")
+
+st.divider()
+
+# =============================================
+# Input Section
+# =============================================
+
+st.header("📋 Enter Employee Information")
+
+col1, col2, col3 = st.columns(3)
+
+with col1:
+    last_salary_hike = st.slider("Last Salary Hike (%)", 0, 25, 10)
+    environment_satisfaction = st.slider("Environment Satisfaction (1–5)", 1, 5, 3)
+
+with col2:
+    job_satisfaction = st.slider("Job Satisfaction (1–5)", 1, 5, 3)
+    years_since_promotion = st.slider("Years Since Last Promotion", 0, 15, 3)
+
+with col3:
+    work_life_balance = st.slider("Work-Life Balance (1–5)", 1, 5, 3)
+    job_involvement = st.slider("Job Involvement (1–5)", 1, 5, 3)
+
+# Collect inputs
+input_data = pd.DataFrame({
+    'LastSalaryHikePercent': [last_salary_hike],
+    'EnvironmentSatisfaction': [environment_satisfaction],
+    'JobSatisfaction': [job_satisfaction],
+    'YearsSinceLastPromotion': [years_since_promotion],
+    'WorkLifeBalance': [work_life_balance],
+    'JobInvolvement': [job_involvement]
+})
+
+st.markdown("### 🧩 Input Summary")
+st.dataframe(input_data, use_container_width=True)
+
+# =============================================
+# Prediction Section
+# =============================================
+st.divider()
+st.header("🎯 Prediction Result")
+
+if st.button("Predict Performance"):
+    if model is not None:
+        try:
+            prediction = model.predict(input_data)
+            pred_class = int(prediction[0])
+
+            # Human-readable mapping (example)
+            perf_mapping = {
+                1: "Low Performer 🚫",
+                2: "Average Performer ⚖️",
+                3: "High Performer 🌟"
+            }
+
+            st.success(f"Predicted Employee Performance: **{perf_mapping.get(pred_class, 'Unknown')}**")
+
+        except Exception as e:
+            st.error(f"Prediction failed: {e}")
+    else:
+        st.warning("Model not loaded. Please ensure the file 'best_employee_performance_model.joblib' is in the same directory.")
+
+# =============================================
+# Footer Section
+# =============================================
+st.divider()
+st.caption("Developed by Alex Ndiritu — Powered by Streamlit and scikit-learn.")
