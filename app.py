@@ -23,10 +23,9 @@ Fill in the details below and click **Predict Performance**.
 # -------------------------------------------------------------
 # 2. Environment Info
 # -------------------------------------------------------------
-st.sidebar.title("⚙️ Environment Info")
-st.sidebar.write(f"**Python:** {sys.version.split()[0]}")
-st.sidebar.write(f"**scikit-learn:** {sklearn.__version__}")
-st.sidebar.write(f"**Streamlit:** {st.__version__}")
+###st.sidebar.write(f"**Python:** {sys.version.split()[0]}")
+#st.sidebar.write(f"**scikit-learn:** {sklearn.__version__}")
+#st.sidebar.write(f"**Streamlit:** {st.__version__}")
 
 # -------------------------------------------------------------
 # 3. Load model
