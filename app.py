@@ -9,7 +9,7 @@ st.sidebar.write(f"🧩 Scikit-learn version: {sklearn.__version__}")
 
 
 # --- Load Model and  ---
-model = joblib.load('./best_employee_performance_model.joblib')
+model = joblib.load('./best_employee_performance_model_sklearn172.joblib')
 
 # --- Streamlit App UI ---
 st.title("Employee Performance Prediction")
