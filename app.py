@@ -86,6 +86,7 @@ with st.form("prediction_form"):
     st.subheader("🧭 Experience and Performance Factors")
     col4, col5 = st.columns(2)
     col6 = st.columns(1)
+    col7 = st.columns(1)
 
     with col4:
         EmpJobInvolvement = st.slider("Job Involvement (1–5)", 1, 5, 3)
@@ -101,11 +102,12 @@ with st.form("prediction_form"):
         YearsWithCurrManager = st.slider("Years With Current Manager", 0, 15, 3)
         ExperienceYearsInCurrentRole = st.slider("Years in Current Role", 0, 20, 5)
         ExperienceYearsAtThisCompany = st.slider("Years at Current Company", 0, 20, 6)
-        
+
     with col6:
         TotalWorkExperienceInYears = st.slider("Total Work Experience (Years)", 0, 40, 10)
 
-    submitted = st.form_submit_button("🚀 Predict Performance")
+    with col7:
+        submitted = st.form_submit_button("🚀 Predict Performance")
 
 # -------------------------------------------------------------
 # 5. Make Prediction
