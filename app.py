@@ -91,6 +91,8 @@ with st.form("prediction_form"):
         EmpEnvironmentSatisfaction = st.slider("Environment Satisfaction (1–5)", 1, 5, 3)
         EmpWorkLifeBalance = st.slider("Work-Life Balance (1–5)", 1, 5, 3)
         EmpJobSatisfaction = st.slider("Job Satisfaction (1–5)", 1, 5, 3)
+        TrainingTimesLastYear = st.slider("Trainings Attended Last Year", 0, 10, 2)
+
 
     with col5:
         EmpLastSalaryHikePercent = st.slider("Last Salary Hike (%)", 0, 25, 12)
@@ -99,7 +101,6 @@ with st.form("prediction_form"):
         ExperienceYearsInCurrentRole = st.slider("Years in Current Role", 0, 20, 5)
         ExperienceYearsAtThisCompany = st.slider("Years at Current Company", 0, 20, 6)
         TotalWorkExperienceInYears = st.slider("Total Work Experience (Years)", 0, 40, 10)
-        TrainingTimesLastYear = st.slider("Trainings Attended Last Year", 0, 10, 2)
 
     submitted = st.form_submit_button("🚀 Predict Performance")
 
